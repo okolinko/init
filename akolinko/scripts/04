@@ -1,0 +1,36 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    04                                                 :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: akolinko <marvin@42.fr>                    +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2018/06/27 13:48:41 by akolinko          #+#    #+#              #
+#    Updated: 2018/06/27 13:49:20 by akolinko         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+crontab -l > track_file
+echo "0 0 * * * \
+	md5_1=\"\$(md5sum /etc/crontab | awk '{ print \$1 }')\" && \
+	md5_2=\"\$(cat /etc/crontab.log)\" && \
+	if [ '\$md5_1' != '\$md5_2' ] ; \
+	then \
+		md5sum /etc/crontab | awk '{ print \$1 }' > /etc/crontab.log && \
+		echo '/etc/crontab has been modified in last 24h' | \
+		mail -s 'Alert, /etc/crontab eddited' root ; \
+	fi" >> track_file
+crontab track_file
+rm track_file
+
+#добавление в файл /etc/crontab
+# 0 0 * * sun   root    sh /root/crontab_check.sh
+#   схема роботы crontab
+#   .---------------- минута (0 - 59)
+#   | .-------------- час (0 - 23)
+#   | | .------------ день месяца (1 - 31)
+#   | | | .---------- месяц (1 - 12) ИЛИ jan,feb,mar ...
+#   | | | | .-------- день недели (0 - 6) (Воскресенье=0 или 7) ИЛИ sun,mon,tue ...
+#   | | | | |
+#   * * * * * команда для выполнения
+
